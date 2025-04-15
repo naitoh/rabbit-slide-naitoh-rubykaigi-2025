@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400">
+  <style>
+    .line { fill: none; stroke-width: 2; }
+    .dashed { stroke-dasharray: 5, 5; }
+    .label { font-size: 18px; text-anchor: middle; }
+    .axis { stroke: #000; stroke-width: 1; }
+    .grid { stroke: #ccc; stroke-width: 0.5; }
+    .point { fill-opacity: 0.8; }
+    .title { font-size: 22px; font-weight: bold; text-anchor: middle; }
+  </style>
+  <!-- 軸 -->
+  <line x1="50" y1="350" x2="750" y2="350" class="axis" />
+  <line x1="50" y1="50" x2="50" y2="350" class="axis" />
+  <!-- タイトル -->
+  <text x="400" y="25" class="title">REXML Performance benchmarks</text>
+  <text x="400" y="388" class="label">rexml version</text>
+  <text x="12" y="200" class="label" transform="rotate(-90, 12, 200)">i/s</text>
+<line x1="50" y1="350.0" x2="750" y2="350.0" class="grid" /><text x="30" y="355.0" class="label" text-anchor="end">18.0</text><line x1="50" y1="275.0" x2="750" y2="275.0" class="grid" /><text x="30" y="280.0" class="label" text-anchor="end">22.0</text><line x1="50" y1="200.0" x2="750" y2="200.0" class="grid" /><text x="30" y="205.0" class="label" text-anchor="end">26.0</text><line x1="50" y1="125.0" x2="750" y2="125.0" class="grid" /><text x="30" y="130.0" class="label" text-anchor="end">30.0</text><line x1="50" y1="50.0" x2="750" y2="50.0" class="grid" /><text x="30" y="55.0" class="label" text-anchor="end">34.0</text><line x1="50" y1="50" x2="50" y2="350" class="grid" /><text x="50" y="370" class="label">3.2.6</text><line x1="750" y1="50" x2="750" y2="350" class="grid" /><text x="750" y="370" class="label">3.4.0</text><polyline points="50,126.10625000000002 750,67.19375000000002" class="line" stroke="#4CAF50" /><circle cx="50" cy="126.10625000000002" r="4" fill="#4CAF50" class="point" /><circle cx="750" cy="67.19375000000002" r="4" fill="#4CAF50" class="point" /><polyline points="50,160.41875 750,75.76250000000005" class="line" stroke="#2196F3" /><circle cx="50" cy="160.41875" r="4" fill="#2196F3" class="point" /><circle cx="750" cy="75.76250000000005" r="4" fill="#2196F3" class="point" /><polyline points="50,203.35624999999996 750,151.36249999999998" class="line" stroke="#FFC107" /><circle cx="50" cy="203.35624999999996" r="4" fill="#FFC107" class="point" /><circle cx="750" cy="151.36249999999998" r="4" fill="#FFC107" class="point" /><polyline points="50,346.53125 750,334.19375" class="line" stroke="#FF5722" /><circle cx="50" cy="346.53125" r="4" fill="#FF5722" class="point" /><circle cx="750" cy="334.19375" r="4" fill="#FF5722" class="point" /><line x1="55" y1="50" x2="75" y2="50" class="line" stroke="#4CAF50" /><text x="115" y="54" class="label" text-anchor="start">pull</text><line x1="55" y1="70" x2="75" y2="70" class="line" stroke="#2196F3" /><text x="115" y="74" class="label" text-anchor="start">stream</text><line x1="55" y1="90" x2="75" y2="90" class="line" stroke="#FFC107" /><text x="115" y="94" class="label" text-anchor="start">sax2</text><line x1="55" y1="110" x2="75" y2="110" class="line" stroke="#FF5722" /><text x="115" y="114" class="label" text-anchor="start">dom</text></svg>

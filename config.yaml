@@ -1,0 +1,25 @@
+---
+id: rubykaigi-2025
+base_name: rubykaigi-2025
+tags:
+- ruby
+- rexml
+presentation_date: 2025-04-17
+presentation_start_time:
+presentation_end_time:
+version: 1.0.0
+licenses: []
+slideshare_id:
+speaker_deck_id:
+vimeo_id:
+youtube_id:
+width: 1440
+height: 900
+source_code_uri:
+author:
+  markup_language: :rd
+  name: NAITOH Jun
+  email: naitoh@gmail.com
+  rubygems_user: naitoh
+  slideshare_user:
+  speaker_deck_user:

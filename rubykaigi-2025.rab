@@ -1,0 +1,892 @@
+= Improvement of REXML and speed up using StringScanner
+
+: author
+   NAITOH Jun
+: institution
+   MedPeer, Inc.
+: content-source
+   RubyKaigi 2025
+: date
+   2025-04-17
+: theme
+   theme
+
+
+: start-time
+   2025-04-17T11:50:00+09:00
+: end-time
+   2025-04-17T12:20:00+09:00
+
+== Slide properties
+
+: enable-title-on-image
+   false
+
+= NAITOH Jun
+
+  * @naitoh (GitHub and X(Twitter))\n
+    (('note:GitHub と X(Twitter) のアカウント'))
+  * A new maintainer of the (({rexml})) library\n
+    (('note:(({rexml}))ライブラリーの新メンテナー'))
+  * ((<Red Data Tools|URL:https://red-data-tools.github.io/>)) project member\n
+    (('note:Red Data Toolsプロジェクトのメンバー'))
+  * ((<redmine.tokyo|URL:https://redmine.tokyo/>)) stuff\n
+    (('note:redmine.tokyo 勉強会のスタッフ'))
+  * Working at MedPeer, Inc.\n
+    (('note:MedPeerで働いている'))
+
+= (('note:MedPeer'))
+
+  # img
+  # src = images/medpeer_mission.png
+  # relative_height = 70
+
+== Slide properties
+
+: enable-title-on-image
+   false
+
+
+= (('note:　'))
+
+  # img
+  # src = images/medpeer.png
+  # relative_height = 100
+
+== Slide properties
+
+: enable-title-on-image
+   false
+
+= rexml in Ruby 3.4 (1)\n(('note:Ruby 3.4の rexml（1）'))
+
+  * Faster XML parsing\n(('note:XMLパースの高速化'))
+    * It is up to 50% faster between\n
+      rexml 3.2.6(attached to Ruby 3.3.0) and\n
+      rexml 3.4.0(attached to Ruby 3.4.0). \n
+      (('note:rexml 3.2.6(Ruby 3.3.0添付)とrexml 3.4.0(Ruby 3.4.0添付)の間で、最大50%速くなった。'))
+
+= Benchmark target file
+
+    <?xml version="1.0"?>
+    <root>
+      <child id0="0" id1="0" />
+       :
+      <child id0="4999" id1="4999" />
+    </root>
+
+  * Parsing XML with 5000 child nodes.\n(('note:5000個の子ノードを持つXMLをパースする'))
+
+
+= Ruby 3.4 YJIT disable(('note:　YJIT 無効'))
+
+    # img
+    # src = images/svg_340_jit_disable.svg
+    # relative_height = 60
+
+  # RT
+
+  (('tag:small'))parser, (('tag:small'))3.2.6, (('tag:small'))3.4.0, (('tag:small'))Faster?
+
+  (('tag:center'))(('tag:small'))dom, (('tag:small'))(('tag:center'))18.19 i/s, (('tag:small'))(('tag:center'))18.84 i/s, (('tag:small'))(('tag:center'))1.03x
+  (('tag:center'))(('tag:small'))sax2, (('tag:small'))(('tag:center'))25.82 i/s, (('tag:small'))(('tag:center'))28.59 i/s, (('tag:small'))(('tag:center'))1.11x
+  (('tag:center'))(('tag:small'))pull, (('tag:small'))(('tag:center'))29.94 i/s, (('tag:small'))(('tag:center'))33.08 i/s, (('tag:small'))(('tag:center'))1.10x
+  (('tag:center'))(('tag:small'))stream, (('tag:small'))(('tag:center'))28.11 i/s, (('tag:small'))(('tag:center'))32.62 i/s, (('tag:small'))(('tag:center'))1.16x
+
+= Ruby 3.4 YJIT enable(('note:　YJIT 有効'))
+
+    # img
+    # src = images/svg_340_jit_enable.svg
+    # relative_height = 60
+
+  # RT
+
+  (('tag:small'))parser, (('tag:small'))3.2.6, (('tag:small'))3.4.0, (('tag:small'))Faster?
+
+  (('tag:center'))(('tag:small'))dom, (('tag:small'))(('tag:center'))25.90 i/s, (('tag:small'))(('tag:center'))31.58 i/s, (('tag:small'))(('tag:center'))1.22x
+  (('tag:center'))(('tag:small'))sax2, (('tag:small'))(('tag:center'))36.57 i/s, (('tag:small'))(('tag:center'))50.67 i/s, (('tag:small'))(('tag:center'))1.39x
+  (('tag:center'))(('tag:small'))pull, (('tag:small'))(('tag:center'))42.71 i/s, (('tag:small'))(('tag:center'))59.88 i/s, (('tag:small'))(('tag:center'))1.40x
+  (('tag:center'))(('tag:small'))stream, (('tag:small'))(('tag:center'))39.02 i/s, (('tag:small'))(('tag:center'))57.25 i/s, (('tag:small'))(('tag:center'))((*1.47x*))
+
+= rexml in Ruby 3.4 (2)\n(('note:Ruby 3.4の rexml（2）'))
+
+  * Faster XML parsing\n(('note:XMLパースの高速化'))
+    * It is up to 60% faster between\n
+      rexml 3.2.6(attached to Ruby 3.3.0) and rexml 3.4.1. \n
+      (('note:rexml 3.2.6(Ruby 3.3.0添付)とrexml 3.4.1の間で、最大60%速くなった'))
+
+= Ruby 3.4 YJIT disable(('note:　YJIT 無効'))
+
+    # img
+    # src = images/svg_341_jit_disable.svg
+    # relative_height = 60
+
+  # RT
+
+  (('tag:small'))parser, (('tag:small'))3.2.6, (('tag:small'))3.4.0, (('tag:small'))3.4.1, (('tag:small'))Faster?
+
+  (('tag:center'))(('tag:small'))dom, (('tag:small'))(('tag:center'))18.19 i/s, (('tag:small'))(('tag:center'))18.84 i/s, (('tag:small'))(('tag:center'))19.47 i/s, (('tag:small'))(('tag:center'))1.07x
+  (('tag:center'))(('tag:small'))sax2, (('tag:small'))(('tag:center'))25.82 i/s, (('tag:small'))(('tag:center'))28.59 i/s, (('tag:small'))(('tag:center'))30.21 i/s, (('tag:small'))(('tag:center'))1.16x
+  (('tag:center'))(('tag:small'))pull, (('tag:small'))(('tag:center'))29.94 i/s, (('tag:small'))(('tag:center'))33.08 i/s, (('tag:small'))(('tag:center'))34.37 i/s, (('tag:small'))(('tag:center'))1.14x
+  (('tag:center'))(('tag:small'))stream, (('tag:small'))(('tag:center'))28.11 i/s, (('tag:small'))(('tag:center'))32.62 i/s, (('tag:small'))(('tag:center'))34.25 i/s, (('tag:small'))(('tag:center'))1.21x
+
+= Ruby 3.4 YJIT enable(('note:　YJIT 有効'))
+
+    # img
+    # src = images/svg_341_jit_enable.svg
+    # relative_height = 60
+
+  # RT
+
+  (('tag:small'))parser, (('tag:small'))3.2.6, (('tag:small'))3.4.0, (('tag:small'))3.4.1, (('tag:small'))Faster?
+
+  (('tag:center'))(('tag:small'))dom, (('tag:small'))(('tag:center'))25.90 i/s, (('tag:small'))(('tag:center'))31.58 i/s, (('tag:small'))(('tag:center'))33.93 i/s, (('tag:small'))(('tag:center'))1.31x
+  (('tag:center'))(('tag:small'))sax2, (('tag:small'))(('tag:center'))36.57 i/s, (('tag:small'))(('tag:center'))50.67 i/s, (('tag:small'))(('tag:center'))53.18 i/s, (('tag:small'))(('tag:center'))1.45x
+  (('tag:center'))(('tag:small'))pull, (('tag:small'))(('tag:center'))42.71 i/s, (('tag:small'))(('tag:center'))59.88 i/s, (('tag:small'))(('tag:center'))65.89 i/s, (('tag:small'))(('tag:center'))1.54x
+  (('tag:center'))(('tag:small'))stream, (('tag:small'))(('tag:center'))39.02 i/s, (('tag:small'))(('tag:center'))57.25 i/s, (('tag:small'))(('tag:center'))61.87 i/s, (('tag:small'))(('tag:center'))((*1.58x*))
+
+= Ruby 3.4 rexml 3.4.1
+
+  # img
+  # src = images/svg_341.svg
+  # relative_height = 80
+
+(('tag:center'))
+Up to 60% faster.\n
+(('note:最大60％高速化'))
+
+= RubyKaigi 2024 LT
+
+  # img
+  # src = images/RubyKaigi2024LT.png
+  # relative_height = 60
+
+(('tag:center'))
+Up to 60% faster since rexml 3.2.6.\n
+(('note:rexml 3.2.6から最大((*60%*))速くなった。'))🤔
+
+= The release version 3.2.7 was slowing down.\n(('note:リリース版の3.2.7が遅くなっていた。'))
+
+      # img
+      # src = images/rexml_x_1797256482272235856.png
+      # relative_height = 100
+
+== Slide properties
+
+: enable-title-on-image
+   false
+
+= Ruby 3.4 rexml 3.2.7
+
+  # img
+  # src = images/svg_327.svg
+  # relative_height = 80
+
+(('tag:center'))
+It was slow in rexml 3.2.7.\n
+(('note:rexml 3.2.7 で遅くなっていた'))
+
+
+= Parsing process was slowing down to deal with CVE.\n(('note:CVEに対処するためパース処理が遅くなっていた'))
+
+  # img
+  # src = images/CVE-2024-35176.png
+  # relative_height = 80
+
+(('tag:center'))
+(('tag:small'))
+((<CVE-2024-35176: DoS vulnerability in REXML|URL:https://www.ruby-lang.org/en/news/2024/05/16/dos-rexml-cve-2024-35176/>))
+
+
+
+= Make REXML Fast Again.\n(('note:REXML を再び高速化する'))
+
+= What's REXML\n(('note:REXML とは？'))
+
+  * REXML is a standard XML library (Bundled Gem) for Ruby implemented in Pure Ruby.\n
+    (('note:REXMLはPure Rubyで実装されたRuby用の標準XMLライブラリ（Bundled Gem）'))
+
+= What's XML?\n(('note:XML とは？'))
+
+    # rouge xml
+
+    <?xml version="1.0"?>
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="100" height="60" fill="#ddd" />
+      <polygon points="50 10, 70 30, 50 50, 30 30" fill="#99f" />
+    </svg>
+
+  * Describe using tags like HTML.\n
+    (('note:HTML の様にタグを用いて記述する'))
+  * Highly scalable data exchange format.\n
+    (('note:拡張性の高いデータ交換用フォーマット'))
+
+= XML-based format example\n(('note:XMLベースのフォーマット例'))
+
+  * SVG, DOCX, XLSX, MathML, PubMed-XML, CIM-XML, etc.\n
+    (('note:SVG, DOCX, XLSX、MathML、PubMed XML, CIM-XML, ..'))
+  * Complex expressions are possible.\n
+    (('note:複雑な表現が可能'))
+
+= XML character encoding.\n(('note:XML の 文字コード'))
+
+  * XML supports UTF-8 and UTF-16 (required). \n
+    (('note:XML は UTF-8 と UTF-16 をサポート(必須)'))
+  * Other character encoding can be used by declaring XML encoding (optional).\n
+    (('note:XMLエンコーディングを宣言することで、他の文字エンコーディングを使用可能(オプション)'))
+
+= How REXML processes XML.(1)\n(('note:REXML の XML処理方法(1)'))
+
+  * REXML supports UTF-8 and UTF-16. \n
+    (('note:REXML は UTF-8 と UTF-16 をサポート'))
+  * Reads and parses XML files by tags.\n
+    (('note:XMLファイルをタグ単位で読み込み、パース処理を行う'))
+
+= How REXML processes XML.(2)\n(('note:REXML の XML処理方法(2)'))
+
+  * For non-UTF-8 encoding, convert to UTF-8 when reading.\n
+    (('note:UTF-8 以外のエンコーディングの場合は、読み込み時にUTF-8 に変換'))
+  * Other encoding can basically be used if Ruby supports it.\n
+    (('note:Rubyがサポートしていれば他のエンコーディングも基本的に使用可能'))
+
+= About REXML's Parser\n(('note:REXMLのパーサーについて'))
+
+  * REXML has a DOM/SAX2/Pull/Stream parser.\n
+    (('note:REXML はDOM/SAX2/Pull/Stream のパーサーがある'))
+
+= Types of REXML parsers\n(('note:REXMLのパーサーの種類'))
+
+  * Tree API (('note:ツリーAPI'))
+    * DOM(Document Object Mode) parser
+  * Streaming API (('note:ストリーミングAPI'))
+    * Callback type(passive) (('note:コールバック形式(受動的)'))
+      * SAX2 (Simple API for XML) parser
+      * Stream parser
+    * Pull type(active) (('note:Pull形式(能動的)'))
+      * Pull parser
+
+= Features of DOM parser.\n(('note:DOMパーサーの特徴'))
+
+  * DOM-style XML parser.\n
+    (('note:DOM スタイルの XML パーサ'))
+  * Treat XML as a tree structure.\n
+    (('note:XMLを木構造として扱う'))
+    * Easy to use as any node can be accessed.\n
+      (('note:任意のノードにアクセス可能なので使いやすい'))
+  * Keep parsing results in memory.\n
+    (('note:パース処理結果をメモリ上に保持する'))
+    * Large XML is memory inefficient and slow..\n
+      (('note:大きなXMLではメモリ効率が悪く遅い'))
+
+= Features of SAX2 parser.(1)\n(('note:SAX2パーサーの特徴(1)'))
+
+  * Stream-style parser with API equivalent to SAX2.\n
+    (('note:SAX2 と同等の API を持つストリーム形式のパーサ '))
+    * Sequential processing from the beginning of the file, line by line.\n
+      (('note:ファイル先頭からシーケンシャルに1行単位ごとに処理'))
+    * By registering an event listener, callbacks are processed on an event-by-event basis.\n
+      (('note:イベントリスナを登録することでイベント単位にコールバック処理'))
+
+= Features of SAX2 parser.(2)\n(('note:SAX2パーサーの特徴(2)'))
+  * Not keep parsing results in memory.\n
+    (('note:パース処理結果をメモリ上に保持しない'))
+  * Memory efficient, fast even with large XML.\n
+    (('note:メモリ効率に優れ、大きなXMLでも高速'))
+  * Not easy to use, because access to arbitrary nodes is not possible.\n
+    (('note:任意のノードへのアクセスはできないので、使い勝手は悪い'))
+
+= Features of Stream parser.\n(('note:Streamパーサーの特徴'))
+  * Basically the same as SAX2 parser.\n
+    (('note:基本的には SAX2 パーサーと同じ'))
+    * Stream parsers are lightweight and fast because of their limited functionality.\n
+      (('note:Streamパーサーは 機能が限定的なので軽量のため速い'))
+
+= Features of Pull parser.\n(('note:Pullパーサーの特徴'))
+  * Stream-style parser, processing one line at a time.\n
+    (('note:ストリーム形式のパーサで、1行単位に処理する'))
+  * Pull parser reads and processes each event by itself.\n
+    (('note:Pullパーサーは各イベントを自分で読み込んで処理する'))
+
+
+
+= Motivation(1)\n(('note:動機(1)'))
+
+  * I am the author of the PDF export library ((<RBPDF gem|URL:https://github.com/naitoh/rbpdf/>)).\n
+    (('note:私は PDF出力ライブラリRBPDF gemの作者'))
+  * I would like to support PDF output of SVG images in RBPDF using REXML, which is easy to install.\n
+    (('note:インストールの容易なREXMLを用いてRBPDFでSVG画像のPDF出力をサポートしたい'))
+
+= Motivation(2)\n(('note:動機(2)'))
+
+  * REXML performance is slower than C extension gem.\n
+    (('note:REXMLはパフォーマンスがC拡張gemより遅い'))
+  * I would like to improve REXML performance.\n
+    (('note:REXMLのパフォーマンスを改善したい'))
+
+
+= Improvements\n(('note:改善点'))
+
+  * Up to 50% speedup between rexml 3.2.6 (Ruby 3.3.0 attached) and rexml 3.4.0 (Ruby 3.4.0 attached).\n
+    (('note:rexml 3.2.6(Ruby 3.3.0 添付) から、rexml 3.4.0(Ruby 3.4.0 添付) の間で最大50%の高速化を実現'))
+  * It is up to 60% faster between rexml 3.2.6 and rexml 3.4.1.\n
+    (('note:rexml 3.2.6 から rexml 3.4.1 の間で最大60%の高速化を実現'))
+
+= How?\n(('note:どうやって？'))
+
+  # img
+  # src = images/rubykaigi-2019-p35-p78.png
+  # relative_height = 60
+
+(('tag:center'))
+(('tag:small'))
+"Improving CSV Processing with Ruby 2.6"\n
+at RubyKaigi 2019\n
+((<URL:https://slide.rabbit-shocker.org/authors/kou/rubykaigi-2019/>))
+
+= What is StringScanner?(1)\n(('note:StringScanner とは？(1)'))
+
+  * StringScanner is a sequential string scanner.\n
+    (('note:StringScanner は逐次的な文字列スキャナ'))
+    * Sequential String Scanning\n(('note:文字列の逐次スキャン'))
+    * Regular Expression Matching\n(('note:正規表現マッチング'))
+    * State Management\n(('note:状態管理'))
+
+
+= StringScanner Features(1)\n(('note:StringScanner の特徴(1)'))
+
+  * Sequential String Scanning\n(('note:文字列の逐次スキャン'))
+      * It processes a string from the beginning, moving forward as it matches patterns.\n
+        (('note:文字列の先頭から順番に解析しながら先に進む'))
+  * Regular Expression Matching\n(('note:正規表現マッチング'))
+  * State Management\n(('note:状態管理'))
+
+= StringScanner Features(2)\n(('note:StringScanner の特徴(2)'))
+
+  * Sequential String Scanning\n(('note:文字列の逐次スキャン'))
+  * Regular Expression Matching\n(('note:正規表現マッチング'))
+      * Use scan(), scan_until(), etc. to look for specific patterns.\n
+        (('note:scan(), scan_until() などを使って特定のパターンを探す。'))
+  * State Management\n(('note:状態管理'))
+
+= StringScanner Features(3)\n(('note:StringScanner の特徴(3)'))
+
+  * Sequential String Scanning\n(('note:文字列の逐次スキャン'))
+  * Regular Expression Matching\n(('note:正規表現マッチング'))
+  * State Management\n(('note:状態管理'))
+      * pos (current position) and rest (rest of string) to see how far you have parsed.\n
+        (('note:pos (現在の位置) や rest (残りの文字列) で、どこまで解析したかを把握できる'))
+
+= What is StringScanner?(2)\n(('note:StringScanner とは？(2)'))
+  * Available since Ruby 1.8 and default gem since Ruby 2.5.\n
+    (('note:Ruby 1.8 から使用可能で Ruby 2.5 以降で default gem になっている'))
+  * Uses Ruby's regular expression engine (Onigmo).\n
+    (('note:Rubyの正規表現エンジン(Onigmo)を使っている'))
+    * ReDoS countermeasure implemented in Ruby 3.2 is also effective.\n
+      (('note:Ruby 3.2で実装されたReDoS対策も有効'))
+
+= StringScanner is fast.\n(('note:StringScanner は速い'))
+
+    # rouge ruby
+
+    /\A\w+/.match('test string') #=> 'test'
+    s = StringScanner.new('test string')
+    s.check(/\w+/) #=> 'test'
+    s.check('test') #=> 'test'
+
+  # RT
+
+  (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small')) 5.675M i/s
+  (('tag:center'))(('tag:small'))StringScanner\n#check(Regexp), (('tag:center'))(('tag:small')) 8.800M i/s\n (('note:(1.55x faster)'))
+  (('tag:center'))(('tag:small'))StringScanner\n#check(String), (('tag:center'))(('tag:small')) 10.27M i/s\n (('note:(1.81x faster)'))
+
+= StringScanner is fast.\n(('note:StringScanner は速い'))
+
+    # RT
+
+    (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small')) 5.675M i/s
+    (('tag:center'))(('tag:small'))StringScanner\n#check(Regexp), (('tag:center'))(('tag:small')) 8.800M i/s\n (('note:(1.55x faster)'))
+
+  * Regexp#match generates and returns a MatchData Object.\n
+    (('note:Regexp#match は MatchData Object を生成して返す'))
+  * StringScanner#check copies the matched string and returns it.\n
+    (('note:StringScanner#check はマッチした文字列をコピーして返す'))
+
+= StringScanner is fast.\n(('note:StringScanner は速い'))
+
+    # RT
+
+    (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small')) 5.675M i/s
+    (('tag:center'))(('tag:small'))StringScanner\n#check(Regexp), (('tag:center'))(('tag:small')) 8.800M i/s\n (('note:(1.55x faster)'))
+    (('tag:center'))(('tag:small'))StringScanner\n#check(String), (('tag:center'))(('tag:small')) 10.27M i/s\n (('note:(((*1.81x*)) faster)'))
+
+  * StringScanner#check(String) is fast because it uses memcmp() for comparison.\n
+    (('note:StringScanner#check(String) は比較に memcmp() を使うので速い'))
+
+= Without match object generation, performance is equivalent.\n(('note:マッチオブジェクト生成無しの場合、性能は同等'))
+
+    # RT
+
+    (('tag:center'))(('tag:small'))Regexp#match?, (('tag:center')) 14.71M i/s
+    (('tag:center'))(('tag:small'))StringScanner#match?, (('tag:center')) 14.28M i/s (('note:(1.03x slower)'))
+
+  * Regexp#match? and StringScanner\n#match? respond with boolean.\n
+    (('note:Regexp#match?とStringScanner#match? はboolean で応答'))
+    * Performance is equivalent since both are only regular expression processing.\n
+      (('note:両方とも正規表現処理のみなのでパフォーマンスは同等'))
+
+= rexml in Ruby 3.4 (2)\n(('note:Ruby 3.4のrexml（2）'))
+
+(('tag:center'))
+Use StringScanner#scan\n instead of Regexp#match\n to parse XML.\n
+(('note:XMLのパースにRegexp#matchの代わりにStringScanner#scanを使う'))
+
+= Example of Regexp class use\n(('note:Regexpクラスを使う例'))
+
+  * Repeat until a match is found in the regular expression.\n
+    (('note:正規表現でマッチするまで繰り返す'))
+
+  # rouge ruby
+
+  word = (/\A<[^>]*>/um).match('<!-- foo -->') # Get Tag
+  case word[0]
+  when /\A<\?xml\s/u     👈  Not Match
+  when /\A<!--/u
+    /<!--(.*?)-->/um.match(word[0])[0] #=> " foo "
+  when /\A<!DOCTYPE\s/um
+
+= Example of Regexp class use\n(('note:Regexpクラスを使う例'))
+
+  * Repeat until a match is found in the regular expression.\n
+    (('note:正規表現でマッチするまで繰り返す'))
+
+  # rouge ruby
+
+  word = (/\A<[^>]*>/um).match('<!-- foo -->') # Get Tag
+  case word[0]
+  when /\A<\?xml\s/u
+  when /\A<!--/u         👈  Match
+    /<!--(.*?)-->/um.match(word[0])[0] #=> " foo "
+  when /\A<!DOCTYPE\s/um
+
+
+= Example of StringScanner use(1)\n(('note:StringScannerの使用例(1)'))
+
+  * Parses strings sequentially from the beginning.\n
+    (('note:文字列の先頭から順番に解析する'))
+  * Easy to understand process.\n
+    (('note:処理がわかりやすい'))
+
+= Example of StringScanner use(1)\n(('note:StringScannerの使用例(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new('<!-- foo -->')
+    s.pos = 0 # for Benchmark
+    if s.scan("<?")     👈  Not Match
+    elsif s.scan("<!")
+      if s.scan("--")
+        s.scan(/(.*?)-->/um) and s[1] #=> " foo "　
+      elsif s.scan("DOCTYPE")
+
+  # RT
+
+  (('tag:center'))<,(('tag:center'))!,(('tag:center'))-,(('tag:center'))-, ,(('tag:center'))f,(('tag:center'))o,(('tag:center'))o, ,(('tag:center'))-,(('tag:center'))-,(('tag:center'))>
+
+  ☝️, , , , , , , , , , ,
+
+= Example of StringScanner use(1)\n(('note:StringScannerの使用例(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new('<!-- foo -->')
+    s.pos = 0 # for Benchmark
+    if s.scan("<?")
+    elsif s.scan("<!") 👈  Match
+      if s.scan("--")
+        s.scan(/(.*?)-->/um) and s[1] #=> " foo "　
+      elsif s.scan("DOCTYPE")
+
+  # RT
+
+  (('tag:center'))<,(('tag:center'))!,(('tag:center'))-,(('tag:center'))-, ,(('tag:center'))f,(('tag:center'))o,(('tag:center'))o, ,(('tag:center'))-,(('tag:center'))-,(('tag:center'))>
+
+   ▶︎,▶︎,☝️, , , , , , , , ,
+
+= Example of StringScanner use(1)\n(('note:StringScannerの使用例(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new('<!-- foo -->')
+    s.pos = 0 # for Benchmark
+    if s.scan("<?")
+    elsif s.scan("<!") 👈
+      if s.scan("--")  👈  Match
+        s.scan(/(.*?)-->/um) and s[1] #=> " foo "　
+      elsif s.scan("DOCTYPE")
+
+  # RT
+
+  (('tag:center'))<,(('tag:center'))!,(('tag:center'))-,(('tag:center'))-, ,(('tag:center'))f,(('tag:center'))o,(('tag:center'))o, ,(('tag:center'))-,(('tag:center'))-,(('tag:center'))>
+
+   , ,▶︎,▶︎,☝️, , , , , , ,
+
+= Example of StringScanner use(1)\n(('note:StringScannerの使用例(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new('<!-- foo -->')
+    s.pos = 0 # for Benchmark
+    if s.scan("<?")
+    elsif s.scan("<!") 👈
+      if s.scan("--")  👈
+        s.scan(/(.*?)-->/um) and s[1] #=> " foo "👈
+      elsif s.scan("DOCTYPE")
+
+  # RT
+
+  (('tag:center'))<,(('tag:center'))!,(('tag:center'))-,(('tag:center'))-, ,(('tag:center'))f,(('tag:center'))o,(('tag:center'))o, ,(('tag:center'))-,(('tag:center'))-,(('tag:center'))>
+
+   , , , ,▶︎,▶︎,▶︎,▶︎,▶︎,▶︎,▶︎,☝️
+
+= Benchmark result\n(('note:ベンチマーク結果'))
+
+    # RT
+
+    (('tag:center'))(('tag:small'))Regexp#match, (('tag:center')) 1.210M i/s
+    (('tag:center'))(('tag:small'))StringScanner#scan, (('tag:center')) 2.225M  i/s\n (('note:(1.84x faster)'))
+
+  * Using StringScanner is 1.8 times faster.\n
+    (('note:StringScanner を使った方が 1.8 倍速い'))
+
+= rexml in Ruby 3.4 (3)\n(('note:Ruby 3.4のrexml（3）'))
+
+(('tag:center'))
+Use StringScanner#scan_until\n instead of Regexp#match\n to parse XML.\n
+(('note:XMLのパースにRegexp#matchの代わりにStringScanner#scan_until を使う'))
+
+= Regexp Class
+
+    # rouge ruby
+
+    xml = "<![CDATA[#{'a'*n}]]>"
+    md = xml.match(/\A<!\[CDATA\[(.*?)\]\]>/um)
+    md[1]
+    => "aaa.."
+
+  # RT
+
+  , (('tag:center'))(('tag:small'))n=10,(('tag:center'))(('tag:small'))n=100
+
+  (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small'))2856k i/s, (('tag:center'))(('tag:small'))976k i/s
+
+= StringScanner#check(Regexp)
+
+      # rouge ruby
+
+      s = StringScanner.new("<![CDATA[#{'a'*n}]]>")
+      s.check(/<!\[CDATA\[(.*?)\]\]>/um) and s[1]
+      => "aaa.."
+
+    # RT
+
+    , (('tag:center'))(('tag:small'))n=10,(('tag:center'))(('tag:small'))n=100
+
+    (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small'))2856k i/s, (('tag:center'))(('tag:small'))976k i/s
+    (('tag:center'))(('tag:small'))#scan\n(Regexp), (('tag:center'))(('tag:small'))4146k i/s\n (('note:(1.45x faster)')), (('tag:center'))(('tag:small'))1137k i/s\n (('note:(1.16x faster)'))
+
+  * (('tag:small'))Using StringScanner is 1.45 times faster.\n
+    (('note:StringScanner を使った方が 1.45 倍速い'))
+
+= StringScanner#scan_until String
+
+      # rouge ruby
+
+      s = StringScanner.new("<![CDATA[#{'a'*n}]]>")
+      s.pos = 0 and s.skip("<!") and s.skip("[CDATA[")\
+      and s.scan_until("]]>").chomp!("]]>") #=>"aaa.."
+
+    # RT
+
+    , (('tag:center'))(('tag:small'))n=10,(('tag:center'))(('tag:small'))n=100
+
+    (('tag:center'))(('tag:small'))Regexp#match, (('tag:center'))(('tag:small'))2856k i/s, (('tag:center'))(('tag:small'))976k i/s
+    (('tag:center'))(('tag:small'))#scan\n(Regexp), (('tag:center'))(('tag:small'))4146k i/s\n (('note:(1.45x faster)')), (('tag:center'))(('tag:small'))1137k i/s\n (('note:(1.16x faster)'))
+    (('tag:center'))(('tag:small'))#scan_until\n(String), (('tag:center'))(('tag:small'))4513k i/s\n (('note:(1.58x faster)')), (('tag:center'))(('tag:small'))3574k i/s\n (('note:(((*3.66x*)) faster)'))
+
+  * (('tag:small'))Using scan_until(String) is 3.6 times faster and less degrading.
+    (('note:scan_until(String) の方が3.6倍速く、劣化しにくい'))
+
+= rexml in Ruby 3.4 (3)\n(('note:Ruby 3.4のrexml（3）'))
+
+* Using string matching\n (instead of regular expressions)\n is faster.\n
+  (('note:(正規表現の代わりに)文字列マッチを使うと、より高速'))
+  * Even when match strings are long, performance degradation is minimized.\n
+    (('note:マッチ文字列が長くなっても、性能劣化を最小限に抑えられる'))
+
+= StringScanner#scan_until String
+
+  * ((<strscan#106|URL:https://github.com/ruby/strscan/pull/106>)) Support for string matching in strscan 3.1.2(attached to Ruby 3.4.0).\n(('note:(Ruby 3.4.0添付の)strscan 3.1.2 で文字列マッチに対応'))
+  * StringScanner#scan_until(String) is fast because it uses rb_memsearch() for comparison.\n
+    (('note:StringScanner#scan_until(String) は比較に rb_memsearch() を使うので速い'))
+
+= rexml in Ruby 3.4 (4)\n(('note:Ruby 3.4のrexml（4）'))
+
+(('tag:center'))
+Suppress generation of\n unnecessary String Objects.\n
+(('note:不要な String Object の生成を抑制する'))
+
+= Generating String Object (copying data) takes time\n(('note:文字列 Object の生成(データのコピー)に時間がかかる'))
+
+    # rouge ruby
+
+    s = StringScanner.new(' ')
+    s.check(/\s+/um) #=> " "
+    s.match?(/\s+/um) #=> 1
+
+  * No match string needed for whitespace removal.\n
+    (('note:空白除去の場合はマッチ文字列は不要'))
+
+= Benchmark result
+
+  * Faster if no match string is needed.\n
+    (('note:マッチ文字列不要なら速くなる'))
+
+  # RT
+
+  , /\s+/um
+
+  (('tag:center'))check, (('tag:left'))6686K i/s
+  (('tag:center'))match?, (('tag:left'))8925K i/s (('note:(1.33x faster)'))
+
+= String matching is faster.(1)\n(('note:文字列マッチならより高速(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new('<![CDATA[')
+    if s.check(/<!/um) .. #=> "<!"
+    if s.match?(/<!/um) .. #=> 2
+    if s.check('<!') .. #=> "<!"
+    if s.match?('<!') .. #=> 2
+
+  * Branching process does not need match string.
+    (('note: 分岐処理ではマッチ文字列は不要'))
+
+
+= String matching is faster.(2)\n(('note:文字列マッチならより高速(2)'))
+
+  * Faster if no match string is needed.\n
+    (('note:マッチ文字列不要なら速くなる'))
+  * String matching is faster.\n
+    (('note:文字列マッチならより高速'))
+
+  # RT
+
+  , /<!/um, '<!'
+
+  (('tag:center'))check, (('tag:center'))10525K i/s, (('tag:center'))14450K i/s (('note:(1.37x faster)'))
+  (('tag:center'))match?, (('tag:center'))18731K i/s (('note:(1.78x faster)')), (('tag:center'))31900K i/s (('note:(3.03x faster)'))
+
+
+= Avoid generating String object(1)\n(('note:文字列オブジェクトの生成を避ける(1)'))
+
+    # rouge ruby
+
+    s = StringScanner.new("'test'>")
+    s.check(/(['"])/) #=> "'"
+
+  * Need to determine if double or single quotes are used to get attribute values.\n
+    (('note:属性値を取得するためにダブルクォーテーションかシングルクォーテーションかの判断が必要'))
+
+= Avoid generating String object(2)\n(('note:文字列オブジェクトの生成を避ける(2)'))
+
+    # rouge ruby
+
+    s = StringScanner.new("'test'>")        
+    case s.peek_byte
+    when 34 then '"' # '"'.ord
+    when 39 then "'" # "'".ord
+    end #=> "'"
+
+  * If a single byte is returned as a number, no object is created.\n
+    (('note: 1バイトなら数値で返せば、オブジェクトは生成されない'))
+
+= Benchmark result
+
+  * Faster without object generation.\n
+    (('note:オブジェクト生成無しでより速く'))
+
+  # RT
+
+  (('tag:center'))with object, (('tag:left'))10385k i/s
+  (('tag:center'))without object, (('tag:left'))32000K i/s (('note:(3.08x faster)'))
+
+= StringScanner#peek_byte
+
+  * New methods added in strscan 3.1.2 (attached to Ruby 3.4.0)\n(('note:(Ruby 3.4.0添付の)strscan 3.1.2 で追加された新しいメソッド'))
+  * Referring to ((<Fast Route Parsing in Rails (('tag:small:(by Aaron Patterson)'))|URL:https://www.youtube.com/watch?v=ZE6F3drGhA8>>)), REXML was also made faster using peek_byte.\n
+    (('note:Fast Route Parsing in Rails の話を参考に、REXML も peek_byte を使って速くなりました'))
+
+= rexml in Ruby 3.4 (5)\n(('note:Ruby 3.4のrexml（5）'))
+
+(('tag:center'))
+Use constants or memoization \nfor slow processes.\n
+(('note:遅い処理には定数やメモ化を使う'))
+
+= Regexp.escape is slow, so use Constant.\n(('note:Regexp.escape は遅いので定数化'))
+
+    # rouge ruby
+
+    REG = /#{Regexp.escape("'")}/
+    s = StringScanner.new("test'>")
+    s.check_until(REG)
+
+  # RT
+
+  (('tag:center'))not use Constant, (('tag:left'))1393K i/s
+  (('tag:center'))use Constant, (('tag:left'))9660K i/s (('note:(6.93x faster)'))
+
+= Encoding of the read delimiter.\n(('note: 読み取り区切り文字のエンコード'))
+
+  * REXML reads XML with ">" as read delimiter.\n
+    (('note:REXML は ">" を読み込み区切り文字としてXMLを読み込む'))
+    * In UTF-16, ">" is 2 byte.\n
+      (('note: UTF-16 の場合、">" は 2byte'))
+
+  # RT
+
+  ,(('tag:center'))<,,(('tag:center'))f,,(('tag:center'))o,,(('tag:center'))o,,(('tag:center'))>
+
+  , , , , , , , ,☝️,☝️
+
+= Memorize the encoding result of the read delimiter.\n(('note:読み取り区切り文字のエンコード結果のメモ化'))
+
+  * One character code exists for each XML instance.\n
+    (('note:XMLインスタンス毎に文字コードは一つ存在'))
+
+  # rouge ruby
+
+  term = '>'
+  @term_encord ||= term.encode('UTF-16BE')
+
+= ((*Made*)) REXML Fast Again!\n(('note:REXML を再び高速化した！'))
+
+  # img
+  # src = images/svg_327.svg
+  # relative_height = 100
+
+== Slide properties
+
+: enable-title-on-image
+   false
+
+= Other improvements.\n(('note:他の改善点'))
+
+  * Enhanced invalid XML check.\n
+    (('note:無効XMLチェック強化'))
+  * Unification of processing results for each REXML parser (DOM/SAX2/Pull/Stream).\n
+    (('note:各パーサー間でのパース処理結果の統一'))
+
+= Enhanced invalid XML check(1).\n(('note:無効XMLチェック強化(1)'))
+
+    # rouge xml
+
+    <root1></root1>
+    <root2></root2>
+
+  * Multiple root tags.\n
+    (('note:複数のルートタグ'))
+
+= Enhanced invalid XML check(2).\n(('note:無効XMLチェック強化(2)'))
+
+    # rouge xml
+
+    foo
+    <root></root>
+
+  * String before the root tag.\n
+    (('note:ルートタグ前の文字列'))
+    * ((<rexml#212|URL:https://github.com/ruby/rexml/issues/212>)): If the BOM is broken, it is interpreted as a string and can detect errors.\n
+      (('note:BOMが壊れた場合、文字列と解釈されるのでエラー検出できる。'))
+
+= Enhanced invalid XML check(3).\n(('note:無効XMLチェック強化(3)'))
+
+    # rouge xml
+
+    <root></root>
+    bar
+
+  * String after the root tag.\n
+    (('note:ルートタグ後の文字列'))
+
+= Enhanced invalid XML check(4).\n(('note:無効XMLチェック強化(4)'))
+
+    # rouge xml
+
+    429 Too Many Requests
+
+  * String with no root tag.\n
+    (('note:ルートタグが無い文字列'))
+    * If an error string is responded instead of XML, the XML parser can handle the error.\n
+      (('note:XMLではなくエラー文字列が応答された場合に、XMLパーサー側でエラー処理できる。'))
+
+= Unification of processing results for each REXML parser.(1)\n(('note:各パーサー間でのパース処理結果の統一(1)'))
+
+  * REXML has a DOM/SAX2/Pull/Stream parser, and there are differences in processing contents.\n
+    (('note:REXML は DOM/SAX2/Pull/Streamパーサーがあり処理内容に差がある'))
+    * There was a difference in the parsing result, so it was fixed.\n
+      (('note:パース処理結果に差異があったので修正した'))
+
+= Unification of processing results for each REXML parser.(2)\n(('note:各パーサー間でのパース処理結果の統一(2)'))
+
+  * There were also differences in error handling items.\n
+    (('note:エラー処理項目にも差があった'))
+    * Fixed that some of the security measures were implemented only in the DOM parser.\n
+      (('note:セキュリティ対策の一部がDOMパーサーのみの実装だったので修正'))
+    * ((<CVE-2024-41946: DoS vulnerability in REXML|URL:https://www.ruby-lang.org/en/news/2024/08/01/dos-rexml-cve-2024-41946/>))
+
+= Summary: Performance(1)\n(('note:まとめ:性能(1)'))
+
+  * Use StringScanner instead of Regexp class to parse XML.\n
+    (('note:XMLのパースにRegexpクラスの代わりにStringScannerを使う'))
+  * Using string matching is faster.\n
+    (('note:文字列マッチを使うと、より高速'))
+    * Even when match strings are long, performance degradation is minimized.\n
+      (('note:マッチ文字列が長くなっても、性能劣化を最小限に抑えられる'))
+
+= Summary: Performance(2)\n(('note:まとめ:性能(2)'))
+
+  * Avoiding generation of String object is faster.\n
+    (('note:文字列 Object の生成を避けると速い'))
+  * Use constants or memoization \nfor slow processes.\n
+    (('note:遅い処理には定数やメモ化を使う'))
+  * After eliminating bottlenecks, \nYJIT makes it even faster.\n
+    (('note:ボトルネックを解消後、YJITでさらに高速に'))
+
+= Summary: Other improvements\n(('note:まとめ:他の改善点'))
+
+  * Enhanced invalid XML check.\n
+    (('note:無効XMLチェック強化'))
+  * Unification of processing results for each REXML parser (DOM/SAX2/Pull/Stream).\n
+    (('note:各パーサー間でのパース処理結果の統一'))
+
+
+= Further work(1)\n(('note:今後の改善案(1)'))
+
+  * Further Optimization.\n(('note:さらなる最適化'))
+    * Use StringScanner#scan_until(String) more.\n
+      (('note:StringScanner#scan_until(String) をより使う'))
+
+= Further work(2)\n(('note:今後の改善案(2)'))
+
+    # img
+    # src = images/rubykaigi-2019-p35-p78.png
+    # relative_height = 50
+
+  * (('tag:small'))Use it with other gems.\n(('note:他のgemでも使う'))\n
+    * (('tag:small'))Enhanced StringScanner may also make CSV faster.\n(('note:StringScannerの強化により、CSVもより速くできるかもしれない'))
+
+
+== Slide properties
+
+: enable-title-on-image
+   false
