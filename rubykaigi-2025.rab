@@ -51,7 +51,10 @@
 
   # img
   # src = images/medpeer.png
-  # relative_height = 100
+  # relative_height = 80
+
+(('tag:center'))
+(('note:((<URL:https://tech.medpeer.co.jp/>))'))              (('note:((<URL:https://medpeer.co.jp/recruit/>))'))
 
 == Slide properties
 
