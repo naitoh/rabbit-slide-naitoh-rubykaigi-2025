@@ -1,0 +1,9 @@
+prelude: |-
+  require "strscan"
+  s = StringScanner.new("test'>")
+  scan_reg = /#{Regexp.escape("'")}/
+benchmark:
+  s.check_until(scan_reg) : |
+    s.check_until(scan_reg)
+  s.check_until(/#{Regexp.escape("'")}/) : |
+    s.check_until(/#{Regexp.escape("'")}/)

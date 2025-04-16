@@ -1,0 +1,26 @@
+prelude: |-
+  require "strscan"
+  n = 10
+  xml_10 = "<![CDATA[#{'a'*n}]]>"
+  n = 100
+  xml_100 = "<![CDATA[#{'a'*n}]]>"
+  s = StringScanner.new(xml_10)
+  t = StringScanner.new(xml_100)
+  skip_str = "<!"
+  skip_str2 = "[CDATA["
+  scan_str = "]]>"
+benchmark:
+  s.pos = 0 and s.skip("<!") and s.skip("[CDATA[") and s.scan_until("]]>").chomp!("]]>") : |
+    s.pos = 0 and s.skip(skip_str) and s.skip(skip_str2) \
+    and s.scan_until(scan_str).chomp!(scan_str)
+  t.pos = 0 and t.skip("<!") and t.skip("[CDATA[") and t.scan_until("]]>").chomp!("]]>") : |
+    t.pos = 0 and t.skip(skip_str) and t.skip(skip_str2) \
+    and t.scan_until(scan_str).chomp!(scan_str)
+  s.check(/<!\[CDATA\[(.*?)\]\]>/um) and s[1] : |
+    s.check(/<!\[CDATA\[(.*?)\]\]>/um) and s[1] 
+  t.check(/<!\[CDATA\[(.*?)\]\]>/um) and s[1] : |
+    t.check(/<!\[CDATA\[(.*?)\]\]>/um) and s[1] 
+  md = xml_10.match(/\A<!\[CDATA\[(.*?)\]\]>/um) and md[1] : |
+    md = xml_10.match(/\A<!\[CDATA\[(.*?)\]\]>/um) and md[1] 
+  md = xml_100.match(/\A<!\[CDATA\[(.*?)\]\]>/um) and md[1] : |
+    md = xml_100.match(/\A<!\[CDATA\[(.*?)\]\]>/um) and md[1] 

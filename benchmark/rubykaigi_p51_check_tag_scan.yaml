@@ -1,0 +1,22 @@
+prelude: |-
+  require "strscan"
+  str = '<!-- foo -->'
+  s = StringScanner.new(str)
+benchmark:
+  Regexp : |
+    word = (/\A<[^>]*>/um).match(str) # Get Tag
+    case word[0]
+    when /\A<\?xml\s/u
+    when /\A<!--/u
+      /<!--(.*?)-->/um.match(word[0])[0] #=> " foo "
+    when /\A<!DOCTYPE\s/um
+    end
+  StringScanner : |
+    s.pos = 0
+    if s.scan("<?")
+    elsif s.scan("<!")
+      if s.scan("--")
+        s.scan(/(.*?)-->/um) and s[1] #=> " foo "
+      end
+    elsif s.scan("DOCTYPE")
+    end

@@ -1,0 +1,14 @@
+prelude: |-
+  require "strscan"
+  s = StringScanner.new("'test'>")
+  str1 = "'"
+  str2 = '"'
+
+benchmark:
+  s.check(/(['"])/) : |
+    s.check(/(['"])/)
+  s.peek_byte : |
+    case s.peek_byte
+    when 34 then str1 # '"'.ord
+    when 39 then str2 # "'".ord
+    end

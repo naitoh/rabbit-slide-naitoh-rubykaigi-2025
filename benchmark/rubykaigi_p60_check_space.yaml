@@ -1,0 +1,9 @@
+prelude: |-
+  require "strscan"
+  s = StringScanner.new(" ")
+  str = ' '
+benchmark:
+  s.check(/\s+/um) : |
+    s.check(/\s+/um)
+  s.match?(/\s+/um) : |
+    s.match?(/\s+/um)

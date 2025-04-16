@@ -1,0 +1,8 @@
+prelude: |-
+  require "strscan"
+  str = "test string"
+  s = StringScanner.new(str)
+  re = /\A\w+/
+benchmark:
+  re.match?(str): re.match?(str)
+  StringScanner#match?(/\w+/): s.match?(/\w+/)

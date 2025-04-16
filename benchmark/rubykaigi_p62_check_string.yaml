@@ -1,0 +1,14 @@
+prelude: |-
+  require "strscan"
+  s = StringScanner.new('<![CDATA[')
+  ptn = /<!/um
+  str = '<!'
+benchmark:
+  s.check(/<!/um) : |
+    s.check(ptn)
+  s.match?(/<!/um) : |
+    s.match?(ptn)
+  s.check('<!') : |
+    s.check(str)
+  s.match?('<!') : |
+    s.match?(str)
